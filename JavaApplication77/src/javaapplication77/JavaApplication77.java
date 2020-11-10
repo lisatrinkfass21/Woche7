@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package webcrawler;
+package javaapplication77;
 
 /**
  *
  * @author Lisa
  */
-public class Webcrawler {
+public class JavaApplication77 {
 
     /**
      * @param args the command line arguments

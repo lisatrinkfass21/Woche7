@@ -23,10 +23,13 @@ public class WebCrawler7 implements ILinkHandler {
 
     public WebCrawler7(String startingURL, int maxThreads) {
         this.url = startingURL;
-        // ToDo: Initialize "mainPool"
+        mainPool = new ForkJoinPool(maxThreads);
+        // ToDo: Initialize "mainPool" - done
     }
 
     private void startCrawling() {
+        LinkFinderAction root = new LinkFinderAction(url, new WebCrawler7(url, 1));
+        mainPool.invoke(root);
         // ToDo: Invoke LinkFinderAction on threadpool
     }
 
