@@ -11,6 +11,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveAction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.NodeClassFilter;
@@ -48,12 +50,11 @@ public class LinkFinderAction extends RecursiveAction {
                 try {
                     NodeFilter filter = new NodeClassFilter(LinkTag.class);
                     List<RecursiveAction> liste = new ArrayList<>();
-                    Parser parser = new Parser(new URL(url).openConnection());
-
-                    NodeList nl = parser.extractAllNodesThatMatch(filter);
                     cr.addVisited(url);
+                    Parser parser = new Parser(new URL(url).openConnection());
+                    NodeList nl = parser.extractAllNodesThatMatch(filter);
                     for (int i = 0; i < nl.size(); i++) {
-                        if (nl.elementAt(i).getText().contains("http>") || nl.elementAt(i).getText().contains("https:")) {
+                        if (nl.elementAt(i).getText().contains("http:") || nl.elementAt(i).getText().contains("https:")) {
                             int index = nl.elementAt(i).getText().indexOf("http");
                             int index2 = nl.elementAt(i).getText().indexOf("\"", index);
                             String link = nl.elementAt(i).getText().substring(index, index2);
@@ -62,24 +63,22 @@ public class LinkFinderAction extends RecursiveAction {
                     }
                     invokeAll(liste);
 
-                } catch (ParserException ex) {
-                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
                 } catch (MalformedURLException ex) {
-                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                    System.out.println(url + ": konnte nicht geöffnet werden");
                 } catch (IOException ex) {
-                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
-                } catch (Exception e) {
-                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                    System.out.println(url + ": konnte nicht geöffnet werden");
+                } catch (ParserException ex) {
+                    System.out.println(url + ": konnte nicht geöffnet werden");
                 }
             }
+            // ToDo:
+            // 1. if crawler has not visited url yet: - done
+            // 2. Create new list of recursiveActions - done
+            // 3. Parse url - done
+            // 4. extract all links from url
+            // 5. add new Action for each sublink
+            // 6. if size of crawler exceeds 500 -> print elapsed time for statistics -done
+            // -> Do not forget to call ìnvokeAll on the actions!
         }
-        // ToDo:
-        // 1. if crawler has not visited url yet: - done
-        // 2. Create new list of recursiveActions - done
-        // 3. Parse url - done
-        // 4. extract all links from url
-        // 5. add new Action for each sublink
-        // 6. if size of crawler exceeds 500 -> print elapsed time for statistics -done
-        // -> Do not forget to call ìnvokeAll on the actions!
     }
 }

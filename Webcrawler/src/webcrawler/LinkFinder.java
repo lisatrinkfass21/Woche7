@@ -12,6 +12,8 @@ package webcrawler;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.NodeClassFilter;
 import org.htmlparser.tags.LinkTag;
@@ -46,14 +48,12 @@ public class LinkFinder implements Runnable {
                 System.exit(0);
             } else {
                 try {
-
                     NodeFilter filter = new NodeClassFilter(LinkTag.class);
-                    Parser parser = new Parser(new URL(url).openConnection());
-
-                    NodeList nl = parser.extractAllNodesThatMatch(filter);
                     linkHandler.addVisited(url);
+                    Parser parser = new Parser(new URL(url).openConnection());
+                    NodeList nl = parser.extractAllNodesThatMatch(filter);
                     for (int i = 0; i < nl.size(); i++) {
-                        if (nl.elementAt(i).getText().contains("http>") || nl.elementAt(i).getText().contains("https:")) {
+                        if (nl.elementAt(i).getText().contains("http:") || nl.elementAt(i).getText().contains("https:")) {
                             int index = nl.elementAt(i).getText().indexOf("http");
                             int index2 = nl.elementAt(i).getText().indexOf("\"", index);
                             String link = nl.elementAt(i).getText().substring(index, index2);
@@ -61,23 +61,23 @@ public class LinkFinder implements Runnable {
                         }
                     }
 
-                } catch (ParserException ex) {
-                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
                 } catch (MalformedURLException ex) {
-                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                    System.out.println(url + ": konnte nicht geöffnet werden");
                 } catch (IOException ex) {
-                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
-                } catch (Exception e) {
-                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                    System.out.println(url + ": konnte nicht geöffnet werden");
+                } catch (ParserException ex) {
+                    System.out.println(url + ": konnte nicht geöffnet werden");
+                } catch (Exception ex) {
+                    System.out.println(url + ": konnte nicht geöffnet werden");
                 }
             }
-        }
 
-        // ToDo: Implement
-        // 1. if url not already visited, visit url with linkHandler
-        // 2. get url and Parse Website
-        // 3. extract all URLs and add url to list of urls which should be visited
-        //    only if link is not empty and url has not been visited before
-        // 4. If size of link handler equals 500 -> print time elapsed for statistics
+            // ToDo: Implement
+            // 1. if url not already visited, visit url with linkHandler
+            // 2. get url and Parse Website
+            // 3. extract all URLs and add url to list of urls which should be visited
+            //    only if link is not empty and url has not been visited before
+            // 4. If size of link handler equals 500 -> print time elapsed for statistics
+        }
     }
 }

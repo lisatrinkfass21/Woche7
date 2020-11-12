@@ -27,8 +27,8 @@ public class WebCrawler6 implements ILinkHandler {
         this.url = startingURL;
         execService = Executors.newFixedThreadPool(maxThreads);
         this.maxThreads = maxThreads;
-        // ToDo: Register a ThreadPool with "maxThreads" for execService - done
 
+        // ToDo: Register a ThreadPool with "maxThreads" for execService - done
     }
 
     @Override
@@ -52,9 +52,9 @@ public class WebCrawler6 implements ILinkHandler {
     }
 
     private void startNewThread(String link) throws Exception {
-        LinkFinder lf = new LinkFinder(link, new WebCrawler6(url, maxThreads));
+        LinkFinder lf = new LinkFinder(link, new WebCrawler6(link, maxThreads));
         this.execService.execute(lf);
-        this.execService.shutdown();
+        //this.execService.shutdown();
         // ToDo: Use executer Service to start new LinkFinder Task! - done
 
     }
