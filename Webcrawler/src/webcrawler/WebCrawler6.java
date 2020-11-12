@@ -19,12 +19,15 @@ public class WebCrawler6 implements ILinkHandler {
 
     private final Collection<String> visitedLinks = Collections.synchronizedSet(new HashSet<String>());
 //    private final Collection<String> visitedLinks = Collections.synchronizedList(new ArrayList<String>());
-    private String url;
-    private ExecutorService execService;
+    private final String url;
+    private final ExecutorService execService;
+    private final int maxThreads;
 
     public WebCrawler6(String startingURL, int maxThreads) {
         this.url = startingURL;
-        // ToDo: Register a ThreadPool with "maxThreads" for execService
+        execService = Executors.newFixedThreadPool(maxThreads);
+        this.maxThreads = maxThreads;
+        // ToDo: Register a ThreadPool with "maxThreads" for execService - done
 
     }
 
@@ -49,7 +52,10 @@ public class WebCrawler6 implements ILinkHandler {
     }
 
     private void startNewThread(String link) throws Exception {
-        // ToDo: Use executer Service to start new LinkFinder Task!
+        LinkFinder lf = new LinkFinder(link, new WebCrawler6(url, maxThreads));
+        this.execService.execute(lf);
+        this.execService.shutdown();
+        // ToDo: Use executer Service to start new LinkFinder Task! - done
 
     }
 

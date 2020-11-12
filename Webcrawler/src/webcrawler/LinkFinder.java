@@ -9,15 +9,15 @@ package webcrawler;
  *
  * @author bmayr
  */
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.NodeClassFilter;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.htmlparser.NodeFilter;
+import org.htmlparser.util.ParserException;
 
 public class LinkFinder implements Runnable {
 
@@ -41,12 +41,35 @@ public class LinkFinder implements Runnable {
 
     private void getSimpleLinks(String url) {
         if (linkHandler.visited(url) == false) {
-            try {
-                Parser parser = new Parser(url);
-                NodeList n = parser.parse(null);
-                NodeList nl = n.extractAllNodesThatMatch(new NodeClassFilter());
-            } catch (Exception ex) {
-                Logger.getLogger(LinkFinder.class.getName()).log(Level.SEVERE, null, ex);
+            if (linkHandler.size() >= 500) {
+                System.out.println("Time: " + t0 + "ns");
+                System.exit(0);
+            } else {
+                try {
+
+                    NodeFilter filter = new NodeClassFilter(LinkTag.class);
+                    Parser parser = new Parser(new URL(url).openConnection());
+
+                    NodeList nl = parser.extractAllNodesThatMatch(filter);
+                    linkHandler.addVisited(url);
+                    for (int i = 0; i < nl.size(); i++) {
+                        if (nl.elementAt(i).getText().contains("http>") || nl.elementAt(i).getText().contains("https:")) {
+                            int index = nl.elementAt(i).getText().indexOf("http");
+                            int index2 = nl.elementAt(i).getText().indexOf("\"", index);
+                            String link = nl.elementAt(i).getText().substring(index, index2);
+                            linkHandler.queueLink(link);
+                        }
+                    }
+
+                } catch (ParserException ex) {
+                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                } catch (MalformedURLException ex) {
+                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                } catch (IOException ex) {
+                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                } catch (Exception e) {
+                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                }
             }
         }
 

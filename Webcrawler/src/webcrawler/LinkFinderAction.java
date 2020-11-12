@@ -11,11 +11,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveAction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
-import org.htmlparser.filters.HasAttributeFilter;
 import org.htmlparser.filters.NodeClassFilter;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
@@ -45,30 +42,34 @@ public class LinkFinderAction extends RecursiveAction {
     public void compute() {
         if (cr.visited(url) == false) {
             if (cr.size() >= 500) {
-                System.out.println("Time: " + t0);
+                System.out.println("Time: " + t0 + "ns");
+                System.exit(0);
             } else {
                 try {
+                    NodeFilter filter = new NodeClassFilter(LinkTag.class);
                     List<RecursiveAction> liste = new ArrayList<>();
                     Parser parser = new Parser(new URL(url).openConnection());
-                    NodeFilter filter = new HasAttributeFilter("href");
+
                     NodeList nl = parser.extractAllNodesThatMatch(filter);
                     cr.addVisited(url);
-                    if (nl.size() > 0) {//kan auch keinen Link enthalten
-                        for (int i = 0; i < nl.size(); i++) {
+                    for (int i = 0; i < nl.size(); i++) {
+                        if (nl.elementAt(i).getText().contains("http>") || nl.elementAt(i).getText().contains("https:")) {
                             int index = nl.elementAt(i).getText().indexOf("http");
-                            int index2 = nl.elementAt(i).getText().length();
-                            String link = nl.elementAt(i).getText().substring(index, index2 - 2);
+                            int index2 = nl.elementAt(i).getText().indexOf("\"", index);
+                            String link = nl.elementAt(i).getText().substring(index, index2);
                             liste.add(new LinkFinderAction(link, cr));
                         }
-                        invokeAll(liste);
-
                     }
+                    invokeAll(liste);
+
                 } catch (ParserException ex) {
-                    Logger.getLogger(LinkFinderAction.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
                 } catch (MalformedURLException ex) {
-                    Logger.getLogger(LinkFinderAction.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
                 } catch (IOException ex) {
-                    Logger.getLogger(LinkFinderAction.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
+                } catch (Exception e) {
+                    System.out.println(url + ": Zu diesem Link kann nicht zugegriffen werden");
                 }
             }
         }

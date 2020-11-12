@@ -30,7 +30,7 @@ public class WebCrawler7 implements ILinkHandler {
     private void startCrawling() {
         LinkFinderAction root = new LinkFinderAction(url, new WebCrawler7(url, 1));
         mainPool.invoke(root);
-        // ToDo: Invoke LinkFinderAction on threadpool
+        // ToDo: Invoke LinkFinderAction on threadpool - done
     }
 
     @Override
@@ -53,6 +53,7 @@ public class WebCrawler7 implements ILinkHandler {
      */
     public static void main(String[] args) throws Exception {
         new WebCrawler7("http://www.orf.at", 64).startCrawling();
+        //new WebCrawler7("https://de.wikipedia.org", 64).startCrawling();
     }
 
     // Just override - we do not need this methode when using forkJoinPool
